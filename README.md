@@ -1,1 +1,4 @@
-# aws_api_gateway
+# AWS Amplify
+# AWS API Gateway
+# AWS Lambda
+# AWS DynamoDB
