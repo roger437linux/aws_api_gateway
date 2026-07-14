@@ -1,0 +1,254 @@
+<script>
+    // Colar com endereço do API Gateway
+    const URL = "https://ypw7cs0ysb.execute-api.us-east-1.amazonaws.com/deploy/mii_recurso";
+</script>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Gateway Demo</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body{
+            min-height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            background:linear-gradient(135deg,#232F3E,#131A22,#0F1111);
+            font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+        }
+
+        .card-api{
+            width:100%;
+            max-width:550px;
+            border:none;
+            border-radius:20px;
+            overflow:hidden;
+            box-shadow:0 15px 40px rgba(0,0,0,.45);
+            animation:fadeIn .7s;
+        }
+
+        .card-header{
+            background:linear-gradient(90deg,#FF9900,#FFB84D);
+            color:#232F3E;
+            text-align:center;
+            padding:25px;
+        }
+
+        .card-header h2{
+            font-weight:bold;
+            margin:0;
+        }
+
+        .card-body{
+            background:white;
+            padding:35px;
+        }
+
+        .form-control{
+            border-radius:12px;
+            padding:12px;
+            border:2px solid #dee2e6;
+            transition:.3s;
+        }
+
+        .form-control:focus{
+            border-color:#FF9900;
+            box-shadow:0 0 10px rgba(255,153,0,.4);
+        }
+
+        .btn-api{
+            width:100%;
+            padding:12px;
+            border:none;
+            border-radius:12px;
+            font-size:18px;
+            font-weight:bold;
+            color:white;
+            background:linear-gradient(90deg,#FF9900,#FF7B00);
+            transition:.3s;
+        }
+
+        .btn-api:hover{
+            transform:translateY(-2px);
+            box-shadow:0 10px 20px rgba(255,153,0,.4);
+        }
+
+        .logo{
+            font-size:60px;
+            color:#232F3E;
+        }
+
+        @keyframes fadeIn{
+            from{
+                opacity:0;
+                transform:translateY(30px);
+            }
+            to{
+                opacity:1;
+                transform:translateY(0);
+            }
+        }
+
+        footer{
+            text-align:center;
+            color:#777;
+            margin-top:20px;
+            font-size:14px;
+        }
+    </style>
+
+    <script>
+
+    //const URL = "https://fart42r5jj.execute-api.us-east-1.amazonaws.com/deploy/my-recurso";
+
+    async function callAPI() {
+        const firstName = document.getElementById("fName").value.trim();
+        const lastName = document.getElementById("lName").value.trim();
+
+        if (!firstName || !lastName) {
+            Swal.fire({
+                icon: "warning",
+                title: "Campos obrigatórios",
+                text: "Informe o nome e o sobrenome.",
+                confirmButtonColor: "#ff9900"
+            });
+            return;
+        }
+
+        const body = {
+            firstName,
+            lastName
+        };
+
+        const button = document.querySelector(".btn-api");
+
+        button.disabled = true;
+        button.innerHTML = `
+            <span class="spinner-border spinner-border-sm"></span>
+            Enviando...
+        `;
+
+        try {
+            const response = await fetch(
+                URL,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(body)
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`Erro HTTP ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            // Limpa os campos
+            document.getElementById("fName").value = "";
+            document.getElementById("lName").value = "";
+
+            // Coloca o foco novamente no primeiro campo
+            document.getElementById("fName").focus();
+
+            Swal.fire({
+                icon: "success",
+                title: "Sucesso!",
+                html: `<h4>${result.body.replaceAll('"', '')}</h4>`,
+                confirmButtonText: "OK",
+                confirmButtonColor: "#ff9900",
+                backdrop: `
+                    rgba(35,47,62,0.7)
+                `
+            });
+
+        }
+        catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Erro",
+                text: error.message,
+                confirmButtonColor: "#d33"
+            });
+        }
+        finally {
+            button.disabled = false;
+            button.innerHTML = `
+                <i class="bi bi-send-fill"></i>
+                Chamar API
+            `;
+        }
+    }
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="card card-api">
+        <div class="card-header">
+            <i class="bi bi-cloud-arrow-up-fill logo"></i>
+            <h2>API Gateway</h2>
+            <p class="mb-0">
+                Exemplo de consumo de uma API REST utilizando AWS
+            </p>
+        </div>
+
+        <div class="card-body">
+            <div class="mb-4">
+                <label class="form-label fw-bold">
+                    <i class="bi bi-person-fill"></i>
+                    Nome
+                </label>
+
+                <input
+                    type="text"
+                    class="form-control"
+                    id="fName"
+                    placeholder="Digite seu nome">
+
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-bold">
+                    <i class="bi bi-person-badge-fill"></i>
+                    Sobrenome
+                </label>
+
+                <input
+                    type="text"
+                    class="form-control"
+                    id="lName"
+                    placeholder="Digite seu sobrenome">
+
+            </div>
+
+            <button
+                class="btn btn-api"
+                onclick="callAPI()">
+
+                <i class="bi bi-send-fill"></i>
+                Chamar API
+
+            </button>
+            <footer>
+                AWS API Gateway • Lambda • Bootstrap 5
+            </footer>
+        </div>
+    </div>
+</div>
+</body>
+</html>
