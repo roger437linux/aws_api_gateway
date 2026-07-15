@@ -1,0 +1,191 @@
+
+✅ 1. Criar tabela no DynamoDB [tbl_clientes]
+
+✔ Chave de partição: Nome
+
+
+
+✅ 2. Criar função Lambda
+
+- Criar do zero
+- Nome da função: miiFunc
+- Tempo de execução: Python 3.14
+
+
+✔ Configurações adicionais -> Personalizar perfil de execução -> Papel de execução 🚀 [LabRole]
+
+↩ Criar função
+
+❌ Código da função Lambda item 8.
+
+
+✔ Após o Deploy da função, testar com o JSON do evento e verificar a inserção na tabela do DynamoDB
+
+{
+  "firstName": "Função",
+  "lastName" : "Lambda"
+}
+
+
+----------------------------------------------------------------------
+
+	
+✅ 3. Criar API Gateway [API REST]
+
+- API nova
+- Nome da API
+↩ Criar API
+
+
+✔ Criar recurso
+- Nome do recurso
+- Habilitar: CORS (Compartilhamento de recursos de origem cruzada)
+↩ Criar recurso
+
+
+✔ Criar método
+- Tipo de método: POST
+- Tipo de integração: Função do Lambda
+- Função do Lambda: <Escolher a função criada no serviço Lambda>
+↩ Criar método
+
+
+❌ Árvore gerada
+
+#⃣ /
+  #⃣ /mii_recurso
+      OPTIONS
+      POST
+
+
+❌ Testar comunicação API Gateway e função Lambda
+
+✔ POST -> Guia Teste
+
+Corpo da solicitação
+
+{
+  "firstName": "API",
+  "lastName": "Gateway"
+}
+
+
+----------------------------------------------------------------------
+
+
+✅ 4. Implantar API
+
+Estágio: *Novo estágio*
+Nome do estágio: deploy
+
+
+❌ Árvore gerada
+
+Estágios
+
+#⃣ deploy
+  #⃣ /
+    #⃣ /mii_recurso
+        OPTIONS
+        POST
+
+
+😃 POST ou OPTIONS -> Invocar URL [Link de acesso a API criada e implantada]
+
+https://etmqc6ba33.execute-api.us-east-1.amazonaws.com/deploy/mii_recurso
+
+
+
+❌ Criar as variáveis de ambiente no Powershell para testar com Curl
+
+$env:URL="<Link de acesso a API criada e implantada>"
+
+
+curl -X POST $env:URL `
+-H "Content-Type: application/json" `
+-d '{"firstName":"Curl","lastName":"Windows"}'
+
+
+----------------------------------------------------------------------
+
+
+✅ 5. Habilitar CORS
+
+✔ Recursos
+
+Selecionar o recurso na árvore
+
+#⃣ /
+  #⃣ /mii_recurso  📌👽
+      OPTIONS
+      POST
+
+✔ Botão Habilitar CORS
+
+OPTIONS
+POST
+↩ Salvar
+
+✔ Botão Implantar API
+
+- deploy [nome da implantação já feita]
+
+
+----------------------------------------------------------------------
+
+
+✅ 6. Atualizar endereço de acesso ao API Gateway na aplicação em execução local
+
+
+✅ 7. Criar serviço AWS Amplify
+
+
+📌 7.1 Amplify recebendo aplicação em arquivo ZIP
+
+- Implantar sem Git
+- Nome da aplicação
+- Compactar  aplicação e fazer o deploy no AWS Amplify
+
+
+📌 7.2 Amplify recebendo aplicação por CI/CD via GitHub
+
+
+----------------------------------------------------------------------
+
+
+✅ 8. Código Lambda em Python
+
+
+import json
+import boto3
+from time import gmtime, strftime
+
+# create a DynamoDB object using the AWS SDK
+dynamodb = boto3.resource('dynamodb')
+
+# use the DynamoDB object to select our table
+table = dynamodb.Table('tbl_clientes')
+
+# store the current time in a human readable format in a variable
+now = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
+
+# define the handler function that the Lambda service will use as an entry point
+def lambda_handler(event, context):
+# extract values from the event object we got from the Lambda service and store in a variable
+    name = event['firstName'] +' '+ event['lastName']
+# write name and time to the DynamoDB table using the object we instantiated and save response in a variable
+    response = table.put_item(
+        Item={
+            'Nome': name,
+            'DataCadastro':now
+            })
+# return a properly formatted JSON object
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Hello from Lambda, ' + name)
+    }
+
+
+----------------------------------------------------------------------
+
+
