@@ -1,1 +1,1 @@
-![](APIGateway.drawio.png)
+![](APIGateway.png)
